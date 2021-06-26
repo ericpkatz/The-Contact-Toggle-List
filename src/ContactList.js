@@ -1,4 +1,7 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { updateContact } from './store';
+import axios from 'axios';
 
 const ContactList = (props) => {
   const { contacts, toggleFavorite } = props;
@@ -11,7 +14,6 @@ const ContactList = (props) => {
           <th>Phone</th>
           <th>Email</th>
           <th></th>
-          <th></th>
         </tr>
         {
           contacts.map( contact => {
@@ -21,7 +23,6 @@ const ContactList = (props) => {
                 <td>{name}</td>
                 <td>{phone}</td>
                 <td>{email}</td>
-                <td><a href={`#${ id }`}>Details</a></td>
                 <td><a href='#' onClick={()=> toggleFavorite(contact )}>Toggle Favorite</a></td>
               </tr>
             )
@@ -32,4 +33,16 @@ const ContactList = (props) => {
   );
 };
 
-export default ContactList;
+const mapDispatchToProps = (dispatch)=> {
+  return {
+    toggleFavorite: async(contact)=> {
+      const response = await axios.put(`/api/contacts/${contact.id}`, {
+        favorite: !contact.favorite,
+      });
+      const updated = response.data;
+      dispatch(updateContact(updated));
+    }
+  };
+};
+
+export default connect(state => state, mapDispatchToProps)(ContactList);
